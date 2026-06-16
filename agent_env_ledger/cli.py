@@ -2,6 +2,9 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.table import Table
+
+from agent_env_ledger.scanner import scan_workspace
 
 app = typer.Typer(help="Local environment memory for frontier coding agents.")
 console = Console()
@@ -70,8 +73,37 @@ def init(project: Path = Path.cwd()):
 def doctor(project: Path = Path.cwd()):
     """Show basic workspace facts useful to a frontier coding agent."""
     console.print("[bold]Agent Env Ledger Doctor[/bold]")
-    console.print(f"Project: {project}")
+    console.print(f"Project: {project.resolve()}")
     console.print(f"Ledger present: {(project / 'AGENT_LEDGER.md').exists()}")
+
+
+@app.command()
+def scan(project: Path = Path.cwd()):
+    """Scan the current workspace and print agent-relevant environment facts."""
+    result = scan_workspace(project)
+
+    table = Table(title="Agent Env Ledger Scan")
+    table.add_column("Field", style="bold")
+    table.add_column("Value")
+
+    table.add_row("Project path", str(result.project_path))
+    table.add_row("Ledger present", "yes" if result.ledger_present else "no")
+    table.add_row("Git repo", "yes" if result.git_repo else "no")
+    table.add_row("Git branch", result.git_branch or "n/a")
+
+    if result.git_dirty is None:
+        dirty = "n/a"
+    else:
+        dirty = "yes" if result.git_dirty else "no"
+    table.add_row("Git dirty", dirty)
+
+    table.add_row("Conda env", result.conda_env or "n/a")
+    table.add_row("Python executable", result.python_executable)
+    table.add_row("Python version", result.python_version)
+    table.add_row("Platform", result.platform)
+    table.add_row("Suggested test command", result.suggested_test_command or "n/a")
+
+    console.print(table)
 
 
 @app.command()
