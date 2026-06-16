@@ -7,7 +7,7 @@ requires-python = ">=3.11"
 authors = [
   { name = "Amit Brahmbhatt" }
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 dependencies = [
   "typer",
   "rich",
@@ -25,3 +25,8 @@ target-version = "py311"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+
+[tool.setuptools.packages.find]
+include = ["agent_env_ledger*"]
+exclude = ["tests*", "docs*", "examples*", "schemas*"]
