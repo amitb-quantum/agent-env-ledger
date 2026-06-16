@@ -288,10 +288,12 @@ secrets_required:
   GITHUB_TOKEN: optional
 ```
 
-Never:
+Never store actual secret values in the ledger.
+
+Bad pattern:
 
 ```yaml
-OPENAI_API_KEY: sk-...
+OPENAI_API_KEY: "<actual-api-key-value>"
 ```
 
 ### 3. Human-readable
