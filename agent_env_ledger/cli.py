@@ -10,6 +10,39 @@ app = typer.Typer(help="Local environment memory for frontier coding agents.")
 console = Console()
 
 
+def _yes_no(value: bool) -> str:
+    return "yes" if value else "no"
+
+
+def _git_dirty_text(value: bool | None) -> str:
+    if value is None:
+        return "n/a"
+    return _yes_no(value)
+
+
+def _format_scan_markdown(project: Path) -> str:
+    result = scan_workspace(project)
+
+    return "\n".join(
+        [
+            "---",
+            "",
+            "## Live Workspace Scan",
+            "",
+            f"- Project path: {result.project_path}",
+            f"- Ledger present: {_yes_no(result.ledger_present)}",
+            f"- Git repo: {_yes_no(result.git_repo)}",
+            f"- Git branch: {result.git_branch or 'n/a'}",
+            f"- Git dirty: {_git_dirty_text(result.git_dirty)}",
+            f"- Conda env: {result.conda_env or 'n/a'}",
+            f"- Python executable: {result.python_executable}",
+            f"- Python version: {result.python_version}",
+            f"- Platform: {result.platform}",
+            f"- Suggested test command: {result.suggested_test_command or 'n/a'}",
+        ]
+    )
+
+
 @app.command()
 def init(project: Path = Path.cwd()):
     """Initialize an AGENT_LEDGER.md file in the current project."""
@@ -90,12 +123,7 @@ def scan(project: Path = Path.cwd()):
     table.add_row("Ledger present", "yes" if result.ledger_present else "no")
     table.add_row("Git repo", "yes" if result.git_repo else "no")
     table.add_row("Git branch", result.git_branch or "n/a")
-
-    if result.git_dirty is None:
-        dirty = "n/a"
-    else:
-        dirty = "yes" if result.git_dirty else "no"
-    table.add_row("Git dirty", dirty)
+    table.add_row("Git dirty", _git_dirty_text(result.git_dirty))
 
     table.add_row("Conda env", result.conda_env or "n/a")
     table.add_row("Python executable", result.python_executable)
@@ -107,7 +135,14 @@ def scan(project: Path = Path.cwd()):
 
 
 @app.command()
-def export(project: Path = Path.cwd()):
+def export(
+    project: Path = Path.cwd(),
+    include_scan: bool = typer.Option(
+        False,
+        "--include-scan",
+        help="Append a read-only live workspace scan in Markdown.",
+    ),
+):
     """Export a compact handoff brief for a frontier coding agent."""
     ledger = project / "AGENT_LEDGER.md"
 
@@ -115,8 +150,16 @@ def export(project: Path = Path.cwd()):
         console.print("[red]No AGENT_LEDGER.md found. Run:[/red] agent-ledger init")
         raise typer.Exit(1)
 
-    console.print("[bold]Paste this into your frontier coding agent:[/bold]\n")
-    console.print(ledger.read_text(encoding="utf-8"))
+    ledger_text = ledger.read_text(encoding="utf-8")
+
+    if not include_scan:
+        console.print("[bold]Paste this into your frontier coding agent:[/bold]\n")
+        console.print(ledger_text)
+        return
+
+    console.print(ledger_text, markup=False)
+    console.print()
+    console.print(_format_scan_markdown(project), markup=False)
 
 
 if __name__ == "__main__":
