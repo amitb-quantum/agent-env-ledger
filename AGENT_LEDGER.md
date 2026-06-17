@@ -51,6 +51,7 @@
   - Read-only `agent-ledger scan` command added
   - Editable install fixed with explicit setuptools package discovery
   - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
+  - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
 - Current objective:
   - Build the next read-only developer utility after scan-aware export.
 - Next safe step:
