@@ -1,3 +1,5 @@
+import json
+
 from typer.testing import CliRunner
 
 from agent_env_ledger.cli import app
@@ -17,6 +19,28 @@ def test_scan_runs():
     assert "Agent Env Ledger Scan" in result.output
     assert "Project path" in result.output
     assert "Python version" in result.output
+
+
+def test_scan_json_emits_expected_keys(tmp_path):
+    result = runner.invoke(app, ["scan", "--project", str(tmp_path), "--json"])
+
+    assert result.exit_code == 0
+    data = json.loads(result.output)
+    assert set(data) == {
+        "project_path",
+        "ledger_present",
+        "git_repo",
+        "git_branch",
+        "git_dirty",
+        "conda_env",
+        "python_executable",
+        "python_version",
+        "platform",
+        "suggested_test_command",
+    }
+    assert data["project_path"] == str(tmp_path.resolve())
+    assert data["ledger_present"] is False
+    assert isinstance(data["python_version"], str)
 
 
 def test_export_default_prints_ledger_only(tmp_path):

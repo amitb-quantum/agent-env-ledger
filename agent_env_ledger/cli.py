@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import typer
@@ -5,6 +6,7 @@ from rich.console import Console
 from rich.table import Table
 
 from agent_env_ledger.scanner import scan_workspace
+from agent_env_ledger.scanner import WorkspaceScan
 
 app = typer.Typer(help="Local environment memory for frontier coding agents.")
 console = Console()
@@ -18,6 +20,21 @@ def _git_dirty_text(value: bool | None) -> str:
     if value is None:
         return "n/a"
     return _yes_no(value)
+
+
+def _scan_to_dict(result: WorkspaceScan) -> dict[str, object]:
+    return {
+        "project_path": str(result.project_path),
+        "ledger_present": result.ledger_present,
+        "git_repo": result.git_repo,
+        "git_branch": result.git_branch,
+        "git_dirty": result.git_dirty,
+        "conda_env": result.conda_env,
+        "python_executable": result.python_executable,
+        "python_version": result.python_version,
+        "platform": result.platform,
+        "suggested_test_command": result.suggested_test_command,
+    }
 
 
 def _format_scan_markdown(project: Path) -> str:
@@ -111,9 +128,20 @@ def doctor(project: Path = Path.cwd()):
 
 
 @app.command()
-def scan(project: Path = Path.cwd()):
+def scan(
+    project: Path = Path.cwd(),
+    json_output: bool = typer.Option(
+        False,
+        "--json",
+        help="Print a compact JSON scan object.",
+    ),
+):
     """Scan the current workspace and print agent-relevant environment facts."""
     result = scan_workspace(project)
+
+    if json_output:
+        typer.echo(json.dumps(_scan_to_dict(result), separators=(",", ":")))
+        return
 
     table = Table(title="Agent Env Ledger Scan")
     table.add_column("Field", style="bold")
