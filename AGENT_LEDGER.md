@@ -36,9 +36,9 @@
 
 - Date: 2026-06-16
 - Branch: main
-- Tests: `4 passed`
-- Commit: 581ab69 Add scan-aware export
-- CLI: `agent-ledger scan` and `agent-ledger export --include-scan` work after `pip install -e .`
+- Tests: `5 passed`
+- Commit: 5df5ed5 Add JSON output for workspace scan
+- CLI: `agent-ledger scan`, `agent-ledger scan --json`, and `agent-ledger export --include-scan` work after `pip install -e .`
 
 ## Next Session Handoff
 
@@ -51,11 +51,13 @@
   - Read-only `agent-ledger scan` command added
   - Editable install fixed with explicit setuptools package discovery
   - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
+  - Machine-readable `agent-ledger scan --json` added and tagged as `agent-env-ledger-v0.1.2-json-scan`
   - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
+  - Machine-readable `agent-ledger scan --json` added and tagged as `agent-env-ledger-v0.1.2-json-scan`
 - Current objective:
-  - Build the next read-only developer utility after scan-aware export.
+  - Build the next local memory primitive after machine-readable workspace scan.
 - Next safe step:
-  - Add `agent-ledger scan --json` for machine-readable workspace snapshots.
+  - Add `agent-ledger note` to append human-authored project notes safely to `AGENT_LEDGER.md`.
 - Open risks:
   - Avoid overbuilding write automation too early.
   - Do not store secrets or private machine-specific details.
