@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from pathlib import Path
 
 import typer
@@ -35,6 +36,33 @@ def _scan_to_dict(result: WorkspaceScan) -> dict[str, object]:
         "platform": result.platform,
         "suggested_test_command": result.suggested_test_command,
     }
+
+
+def _note_timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d %H:%M")
+
+
+def _append_project_note(ledger_text: str, note_text: str, timestamp: str) -> str:
+    note_line = f"- {timestamp}: {note_text}"
+    section_heading = "## Project Notes"
+    lines = ledger_text.splitlines()
+
+    try:
+        section_index = lines.index(section_heading)
+    except ValueError:
+        if lines and lines[-1] != "":
+            lines.append("")
+        lines.extend([section_heading, "", note_line])
+        return "\n".join(lines) + "\n"
+
+    insert_index = len(lines)
+    for index in range(section_index + 1, len(lines)):
+        if lines[index].startswith("## "):
+            insert_index = index
+            break
+
+    lines.insert(insert_index, note_line)
+    return "\n".join(lines) + "\n"
 
 
 def _format_scan_markdown(project: Path) -> str:
@@ -160,6 +188,24 @@ def scan(
     table.add_row("Suggested test command", result.suggested_test_command or "n/a")
 
     console.print(table)
+
+
+@app.command()
+def note(text: str, project: Path = Path.cwd()):
+    """Append a timestamped project note to AGENT_LEDGER.md."""
+    ledger = project / "AGENT_LEDGER.md"
+
+    if not ledger.exists():
+        console.print("[red]No AGENT_LEDGER.md found. Run:[/red] agent-ledger init")
+        raise typer.Exit(1)
+
+    updated = _append_project_note(
+        ledger.read_text(encoding="utf-8"),
+        text,
+        _note_timestamp(),
+    )
+    ledger.write_text(updated, encoding="utf-8")
+    console.print("[green]Note added to AGENT_LEDGER.md[/green]")
 
 
 @app.command()

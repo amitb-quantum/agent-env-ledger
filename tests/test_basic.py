@@ -2,8 +2,9 @@ import json
 
 from typer.testing import CliRunner
 
-from agent_env_ledger.cli import app
+from agent_env_ledger import cli
 
+app = cli.app
 runner = CliRunner()
 
 
@@ -72,3 +73,53 @@ def test_export_include_scan_appends_markdown_scan(tmp_path):
     assert "- Ledger present: yes" in result.output
     assert "- Git repo:" in result.output
     assert "- Python version:" in result.output
+
+
+def test_note_fails_cleanly_without_ledger(tmp_path):
+    result = runner.invoke(app, ["note", "remember this", "--project", str(tmp_path)])
+
+    assert result.exit_code == 1
+    assert "No AGENT_LEDGER.md found" in result.output
+    assert "agent-ledger init" in result.output
+
+
+def test_note_creates_project_notes_section(tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "_note_timestamp", lambda: "2026-06-17 09:15")
+    ledger = tmp_path / "AGENT_LEDGER.md"
+    ledger.write_text("# Agent Ledger\n\n## Project Identity\n\n- Project: test\n", encoding="utf-8")
+
+    result = runner.invoke(app, ["note", "Use dry-run mode.", "--project", str(tmp_path)])
+
+    assert result.exit_code == 0
+    assert ledger.read_text(encoding="utf-8") == (
+        "# Agent Ledger\n"
+        "\n"
+        "## Project Identity\n"
+        "\n"
+        "- Project: test\n"
+        "\n"
+        "## Project Notes\n"
+        "\n"
+        "- 2026-06-17 09:15: Use dry-run mode.\n"
+    )
+
+
+def test_note_appends_second_note_without_deleting_first(tmp_path, monkeypatch):
+    ledger = tmp_path / "AGENT_LEDGER.md"
+    ledger.write_text(
+        "# Agent Ledger\n"
+        "\n"
+        "## Project Notes\n"
+        "\n"
+        "- 2026-06-17 09:15: First note.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(cli, "_note_timestamp", lambda: "2026-06-17 10:20")
+
+    result = runner.invoke(app, ["note", "Second note.", "--project", str(tmp_path)])
+
+    assert result.exit_code == 0
+    content = ledger.read_text(encoding="utf-8")
+    assert "- 2026-06-17 09:15: First note." in content
+    assert "- 2026-06-17 10:20: Second note." in content
+    assert content.index("First note.") < content.index("Second note.")

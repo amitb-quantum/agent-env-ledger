@@ -62,3 +62,7 @@
   - Avoid overbuilding write automation too early.
   - Do not store secrets or private machine-specific details.
   - Keep commands read-only unless explicitly named as write operations.
+
+## Project Notes
+
+- 2026-06-17 09:34: First append-only note command added for safe human-authored project memory.
