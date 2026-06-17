@@ -36,9 +36,9 @@
 
 - Date: 2026-06-16
 - Branch: main
-- Tests: `5 passed`
-- Commit: 5df5ed5 Add JSON output for workspace scan
-- CLI: `agent-ledger scan`, `agent-ledger scan --json`, and `agent-ledger export --include-scan` work after `pip install -e .`
+- Tests: `latest pytest pass after notes feature`
+- Commit: latest main includes append-only notes feature
+- CLI: `agent-ledger scan`, `agent-ledger scan --json`, `agent-ledger note`, and `agent-ledger export --include-scan` work after `pip install -e .`
 
 ## Next Session Handoff
 
@@ -52,12 +52,11 @@
   - Editable install fixed with explicit setuptools package discovery
   - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
   - Machine-readable `agent-ledger scan --json` added and tagged as `agent-env-ledger-v0.1.2-json-scan`
-  - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
-  - Machine-readable `agent-ledger scan --json` added and tagged as `agent-env-ledger-v0.1.2-json-scan`
+  - Append-only `agent-ledger note` added and tagged as `agent-env-ledger-v0.1.3-notes`
 - Current objective:
-  - Build the next local memory primitive after machine-readable workspace scan.
+  - Build the next safe local memory primitive after append-only notes.
 - Next safe step:
-  - Add `agent-ledger note` to append human-authored project notes safely to `AGENT_LEDGER.md`.
+  - Add `agent-ledger failure add` to record known failures and fixes in the ledger.
 - Open risks:
   - Avoid overbuilding write automation too early.
   - Do not store secrets or private machine-specific details.
