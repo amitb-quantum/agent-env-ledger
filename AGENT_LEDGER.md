@@ -36,9 +36,9 @@
 
 - Date: 2026-06-16
 - Branch: main
-- Tests: `2 passed`
-- Commit: cd39218 Configure setuptools package discovery
-- CLI: `agent-ledger scan` works after `pip install -e .`
+- Tests: `4 passed`
+- Commit: 581ab69 Add scan-aware export
+- CLI: `agent-ledger scan` and `agent-ledger export --include-scan` work after `pip install -e .`
 
 ## Next Session Handoff
 
@@ -50,10 +50,11 @@
   - Bootstrap tag published
   - Read-only `agent-ledger scan` command added
   - Editable install fixed with explicit setuptools package discovery
+  - Read-only `agent-ledger export --include-scan` added and tagged as `agent-env-ledger-v0.1.1-scan-export`
 - Current objective:
-  - Build the first useful export flow for frontier coding agents.
+  - Build the next read-only developer utility after scan-aware export.
 - Next safe step:
-  - Add `agent-ledger export --include-scan` to print the ledger plus current workspace scan.
+  - Add `agent-ledger scan --json` for machine-readable workspace snapshots.
 - Open risks:
   - Avoid overbuilding write automation too early.
   - Do not store secrets or private machine-specific details.
